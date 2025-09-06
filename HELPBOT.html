@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Helpbot E.F.M — Assistente de Saúde e Bem-Estar</title>
+    <meta name="description" content="Helpbot E.F.M - seu assistente pessoal para lembretes de saúde, exercícios e acompanhamento familiar." />
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1E1E1E;
+            --text-primary: #E0E0E0;
+            --text-secondary: #BDBDBD;
+            --accent: #00E6E6;
+            --accent-dark: #00B3B3;
+            --highlight: #5E35B1;
+            --danger: #EF5350;
+            --radius: 12px;
+            --base-font: 18px; /* Increased base font size */
+            --font-stack: 'Roboto', 'Segoe UI', sans-serif;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            font-size: var(--base-font); /* Apply base font size */
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--card);
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(90deg, var(--highlight), #4D2C92);
+            padding: 30px 24px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(45deg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .logo .icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 2.5rem; /* Increased size */
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 10px var(--accent); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px var(--accent); }
+        }
+
+        h1 {
+            font-size: 2.5rem; /* Increased size */
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 1.8rem; /* Increased size */
+            margin-top: 0;
+            color: var(--accent);
+        }
+        
+        h3 {
+            color: var(--text-primary);
+            font-size: 1.4rem; /* Increased size */
+        }
+
+        p.lead {
+            margin: 0;
+            opacity: 0.9; /* Increased opacity for readability */
+            max-width: 500px;
+            font-size: 1.1rem; /* Increased size */
+        }
+        
+        .slogan {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        main {
+            padding: 24px;
+            flex-grow: 1;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px; /* Increased padding */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+        }
+
+        .muted {
+            color: var(--text-secondary);
+            font-size: 1rem; /* Adjusted to be more readable */
+        }
+
+        /* Forms and Buttons */
+        label {
+            display: block;
+            font-weight: 600;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-size: 1.1rem; /* Increased size */
+        }
+
+        input[type="text"], input[type="password"], input[type="time"], input[type="date"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 14px; /* Increased padding */
+            border-radius: 8px;
+            border: 1px solid #444;
+            font-size: 1.1rem; /* Increased size */
+            background: #2A2A2A;
+            color: var(--text-primary);
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: #777;
+        }
+
+        button {
+            padding: 14px 24px; /* Increased padding */
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: var(--accent);
+            color: #121212;
+            font-weight: 700;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 1.1rem; /* Increased size */
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background-color: var(--accent-dark);
+            box-shadow: 0 4px 15px rgba(0, 230, 230, 0.3);
+        }
+
+        .secondary {
+            background: #333;
+            color: var(--accent);
+            border: 2px solid rgba(0, 230, 230, 0.2);
+        }
+        
+        .secondary:hover {
+            background: #444;
+            color: var(--accent);
+            box-shadow: 0 4px 15px rgba(94, 53, 177, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-link {
+            background: transparent;
+            color: var(--accent);
+            border: none;
+            text-decoration: underline;
+            padding: 0;
+            font-weight: normal;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 4px 15px rgba(239, 83, 80, 0.4);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            background: #181818;
+            border-radius: 10px;
+            padding: 6px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .tab-button.active {
+            background: var(--highlight);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(94, 53, 177, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Navigation */
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #181818;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            flex-wrap: wrap; /* Allows wrapping on small screens */
+            gap: 5px; /* Added gap */
+        }
+        
+        .main-nav .tab-button {
+            border-radius: 0;
+            padding: 15px 10px; /* Reduced horizontal padding for more buttons */
+            border: none;
+            font-size: 1rem;
+            flex: 1; /* Make buttons grow to fit space */
+        }
+        
+        .main-nav .tab-button.active {
+            border-bottom: 3px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            box-shadow: none;
+        }
+
+        /* Welcome page */
+        .welcome-page {
+            text-align: center;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        /* List items */
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #242424;
+            border: 1px solid #333;
+            margin-top: 10px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .list-item:first-of-type {
+            margin-top: 0;
+        }
+
+        .list-item-content {
+            flex: 1;
+        }
+        
+        .family-list .list-item {
+            background: #242424;
+            border: 1px solid #333;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--highlight), #4D2C92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            border: 2px solid var(--accent);
+        }
+        
+        .section-title {
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Chat styles */
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 1px solid #444;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        #chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            line-height: 1.4;
+        }
+        
+        .user-message {
+            background-color: var(--highlight);
+            align-self: flex-end;
+        }
+        
+        .bot-message {
+            background-color: #333;
+            align-self: flex-start;
+        }
+        
+        #chat-input-form {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        #chat-input-form input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                min-height: 95vh;
+                margin: 10px;
+            }
+
+            .flex-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .list-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .list-item .flex-row {
+                margin-top: 10px;
+                width: 100%;
+            }
+            
+            .main-nav {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="welcome-page" id="welcome-page">
+            <header>
+                <div class="logo">
+                    <div class="icon" aria-hidden>🤖</div>
+                    <div>
+                        <h1>Helpbot E.F.M</h1>
+                        <p class="lead">Seu assistente pessoal para saúde e bem-estar. Lembretes, organização e acompanhamento para viver com mais tranquilidade.</p>
+                    </div>
+                </div>
+                <div class="slogan">O Melhor Robô para Cuidar de Você e sua Família!</div>
+            </header>
+            <main style="display:flex; flex-direction:column; justify-content:center; align-items:center; flex-grow:1; gap:24px;">
+                <h2 style="font-size: 2.2rem;">Seja Bem-Vindo! 🌟</h2>
+                <button onclick="showPage('login-page')">Entrar</button>
+                <div class="muted">Acesse sua conta ou crie uma nova.</div>
+            </main>
+        </div>
+
+        <div class="card" id="login-page" style="display:none; padding:32px;">
+            <div class="logo" style="justify-content:center; margin-bottom: 24px;">
+                <div class="icon">🤖</div>
+            </div>
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('login-tab', 'login-page')">Login</button>
+                <button class="tab-button" onclick="showTab('register-tab', 'login-page')">Registro</button>
+            </div>
+            
+            <div id="login-tab" class="tab-content active">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginUser">Nome de Usuário</label>
+                        <input id="loginUser" type="text" placeholder="Seu nome" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <input id="loginPassword" type="password" required />
+                    </div>
+                    <button type="submit" style="width:100%; margin-top:10px;">Acessar</button>
+                </form>
+            </div>
+            
+            <div id="register-tab" class="tab-content">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerUser">Escolha um Nome de Usuário</label>
+                        <input id="registerUser" type="text" placeholder="Nome de usuário" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Crie uma Senha</label>
+                        <input id="registerPassword" type="password" required />
+                    </div>
+                    <button type="submit" style="width:100%; margin-top:10px;">Registrar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="main-app" id="main-app" style="display:none;">
+            <header>
+                <div class="logo">
+                    <div class="icon">🤖</div>
+                    <div>
+                        <h1>Helpbot E.F.M</h1>
+                        <p class="lead">Olá, <span id="userNameDisplay">Usuário</span>! Pronto para organizar seu dia?</p>
+                    </div>
+                </div>
+            </header>
+            <main>
+                <nav class="main-nav">
+                    <button class="tab-button active" onclick="showTab('reminders-tab', 'main-app')">Lembretes</button>
+                    <button class="tab-button" onclick="showTab('tracker-tab', 'main-app')">Acompanhamento</button>
+                    <button class="tab-button" onclick="showTab('family-tab', 'main-app')">Família</button>
+                    <button class="tab-button" onclick="showTab('chat-tab', 'main-app')">Converse</button>
+                    <button class="tab-button" onclick="showTab('settings-tab', 'main-app')">⚙️</button>
+                </nav>
+
+                <div id="reminders-tab" class="tab-content active">
+                    <div class="card">
+                        <h2 style="margin-top:0;">💊 Adicionar Lembrete de Medicação</h2>
+                        <form id="reminderForm">
+                            <label for="medName">Nome do remédio</label>
+                            <input id="medName" type="text" placeholder="Ex: Losartana 50mg" required />
+                            <label for="medTime">Horário</label>
+                            <input id="medTime" type="time" required />
+                            <label for="medNotes">Instruções</label>
+                            <textarea id="medNotes" rows="2" placeholder="Tomar com água, depois do café..."></textarea>
+                            <div class="flex-row" style="margin-top: 14px;">
+                                <button type="submit">Salvar Lembrete</button>
+                                <button type="button" id="clearReminders" class="secondary">Limpar Todos</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card" style="margin-top: 16px;">
+                        <h2 style="margin-top:0;">🏃‍♀️ Adicionar Lembrete de Exercício</h2>
+                        <form id="exerciseForm">
+                            <label for="exerciseName">Exercício</label>
+                            <input id="exerciseName" type="text" placeholder="Caminhada leve" required />
+                            <label for="exerciseWhen">Data</label>
+                            <input id="exerciseWhen" type="date" required />
+                            <div style="margin-top: 14px;">
+                                <button type="submit">Adicionar Exercício</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="section-title">
+                            <h3 style="margin:0;">Sua Agenda</h3>
+                            <div class="muted">Lembretes e exercícios agendados.</div>
+                        </div>
+                        <div id="remindersAndExercisesList" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+
+                <div id="tracker-tab" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-top:0;">📈 Acompanhamento de Saúde</h2>
+                        <div class="muted">Registre suas medições para monitorar seu progresso.</div>
+
+                        <form id="bloodPressureForm" style="margin-top: 10px;">
+                            <h3 style="margin-top:0;">Pressão Arterial ❤️</h3>
+                            <div class="flex-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="sys">Sistólica (mmHg)</label>
+                                    <input id="sys" type="number" placeholder="Ex: 120" required />
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="dia">Diastólica (mmHg)</label>
+                                    <input id="dia" type="number" placeholder="Ex: 80" required />
+                                </div>
+                            </div>
+                            <button type="submit" style="width:100%; margin-top:10px;">Salvar Medição</button>
+                        </form>
+                        
+                        <form id="glucoseForm" style="margin-top: 20px;">
+                            <h3 style="margin-top:0;">Glicose 🩸</h3>
+                            <div class="form-group">
+                                <label for="glucoseValue">Valor (mg/dL)</label>
+                                <input id="glucoseValue" type="number" placeholder="Ex: 95" required />
+                            </div>
+                            <button type="submit" style="width:100%; margin-top:10px;">Salvar Medição</button>
+                        </form>
+
+                        <div class="card" style="margin-top: 20px;">
+                            <h3 style="margin-top:0;">Histórico de Medições</h3>
+                            <div id="healthHistory" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="family-tab" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-top:0;">👨‍👩‍👧‍👦 Acompanhamento Familiar</h2>
+                        <div class="muted">Adicione contatos que podem receber notificações e ajudar no acompanhamento.</div>
+                        <form id="familyForm" style="margin-top: 10px;">
+                            <label for="memberName">Nome</label>
+                            <input id="memberName" type="text" placeholder="Ex: Filho João" required />
+                            <label for="memberPhone">Telefone (opcional)</label>
+                            <input id="memberPhone" type="tel" placeholder="(00) 9 9999-9999" />
+                            <div style="margin-top: 14px;"><button type="submit">Adicionar Familiar</button></div>
+                        </form>
+                        <div class="family-list" id="familyList" style="margin-top: 16px;"></div>
+                    </div>
+                </div>
+
+                <div id="chat-tab" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-top:0;">🤖 Converse com o Helpbot</h2>
+                        <div class="muted">Pergunte sobre saúde, bem-estar ou qualquer outra coisa.</div>
+                        <div id="chat-container">
+                            <div id="chat-messages">
+                                <div class="message bot-message">Olá! Como posso te ajudar hoje?</div>
+                            </div>
+                            <form id="chat-input-form">
+                                <input id="chat-input" type="text" placeholder="Digite sua mensagem..." required />
+                                <button type="submit">Enviar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="settings-tab" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-top:0;">⚙️ Configurações</h2>
+                        <div class="muted">Gerencie sua conta e seus dados.</div>
+                        <div style="display:grid; gap:10px; margin-top:14px">
+                            <button id="logout" class="secondary">Sair da conta</button>
+                            <button id="exportData" class="secondary">Exportar dados (JSON)</button>
+                            <button id="clearAll" class="btn-danger">Apagar todos os dados</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const DB_KEY = 'helpbot_data_v3';
+        
+        const loadData = () => {
+            try {
+                const d = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+                return d;
+            } catch (e) {
+                return {};
+            }
+        };
+
+        const saveData = (data) => {
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        };
+
+        let state = loadData();
+        if (!state.users) state.users = {};
+        if (!state.currentUser) state.currentUser = null;
+
+        const showPage = (pageId) => {
+            document.querySelectorAll('#app > div').forEach(el => el.style.display = 'none');
+            document.getElementById(pageId).style.display = 'flex';
+        };
+
+        const showTab = (tabId, parentId) => {
+            const parent = document.getElementById(parentId);
+            parent.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+            parent.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            parent.querySelector(`[onclick="showTab('${tabId}', '${parentId}')"]`).classList.add('active');
+        };
+
+        const renderUserInterface = () => {
+            if (state.currentUser) {
+                document.getElementById('userNameDisplay').textContent = state.currentUser;
+                showPage('main-app');
+                renderAll();
+            } else {
+                showPage('welcome-page');
+            }
+        };
+
+        // Login & Register
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            if (state.users[user] && state.users[user].password === pass) {
+                state.currentUser = user;
+                saveData(state);
+                renderUserInterface();
+                alert(`Olá, ${user}! Acesso realizado com sucesso.`);
+            } else {
+                alert('Nome de usuário ou senha inválidos.');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('registerUser').value.trim();
+            const pass = document.getElementById('registerPassword').value;
+            if (state.users[user]) {
+                alert('Nome de usuário já existe.');
+            } else {
+                state.users[user] = {
+                    password: pass,
+                    reminders: [],
+                    family: [],
+                    exercises: [],
+                    bloodPressure: [],
+                    glucose: []
+                };
+                state.currentUser = user;
+                saveData(state);
+                renderUserInterface();
+                alert(`Conta criada com sucesso, ${user}!`);
+            }
+        });
+
+        document.getElementById('logout').addEventListener('click', () => {
+            state.currentUser = null;
+            saveData(state);
+            renderUserInterface();
+            alert('Você saiu da conta.');
+        });
+        
+        // Reminder & Exercise
+        const reminderForm = document.getElementById('reminderForm');
+        reminderForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const userState = state.users[state.currentUser];
+            const name = document.getElementById('medName').value.trim();
+            const time = document.getElementById('medTime').value;
+            const notes = document.getElementById('medNotes').value.trim();
+            if (!name || !time) return alert('Por favor, preencha o nome e o horário.');
+            userState.reminders.push({ id: Date.now(), name, time, notes });
+            saveData(state);
+            renderRemindersAndExercises();
+            reminderForm.reset();
+        });
+
+        document.getElementById('clearReminders').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja apagar todos os lembretes?')) {
+                state.users[state.currentUser].reminders = [];
+                state.users[state.currentUser].exercises = [];
+                saveData(state);
+                renderRemindersAndExercises();
+            }
+        });
+
+        const exerciseForm = document.getElementById('exerciseForm');
+        exerciseForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const userState = state.users[state.currentUser];
+            const name = document.getElementById('exerciseName').value.trim();
+            const when = document.getElementById('exerciseWhen').value;
+            if (!name || !when) return alert('Por favor, preencha o exercício e a data.');
+            userState.exercises.push({ id: Date.now(), name, when });
+            saveData(state);
+            renderRemindersAndExercises();
+            exerciseForm.reset();
+        });
+
+        function renderRemindersAndExercises() {
+            const el = document.getElementById('remindersAndExercisesList');
+            el.innerHTML = '';
+            const userState = state.users[state.currentUser];
+            const allItems = [
+                ...userState.reminders.map(item => ({...item, type: 'reminder'})),
+                ...userState.exercises.map(item => ({...item, type: 'exercise'}))
+            ];
+
+            allItems.sort((a, b) => {
+                const aTime = a.type === 'reminder' ? new Date(`2000-01-01T${a.time}`) : new Date(a.when);
+                const bTime = b.type === 'reminder' ? new Date(`2000-01-01T${b.time}`) : new Date(b.when);
+                return aTime - bTime;
+            });
+
+            if (allItems.length === 0) {
+                el.innerHTML = `<p class="muted" style="text-align: center;">Nenhum lembrete ou exercício agendado. 📅</p>`;
+            } else {
+                allItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    let content = '';
+                    if (item.type === 'reminder') {
+                        content = `
+                            <div class="list-item-content">
+                                <div style="font-weight:700">💊 ${item.name}</div>
+                                <div class="muted">${item.time} — ${item.notes || 'Sem instruções.'}</div>
+                            </div>
+                            <div class="flex-row">
+                                <button onclick="deleteItem(${item.id}, 'reminders')" class="secondary">Remover</button>
+                            </div>
+                        `;
+                    } else {
+                        content = `
+                            <div class="list-item-content">
+                                <div style="font-weight:700">🏃‍♀️ ${item.name}</div>
+                                <div class="muted">${item.when}</div>
+                            </div>
+                            <div class="flex-row">
+                                <button onclick="deleteItem(${item.id}, 'exercises')" class="secondary">Remover</button>
+                            </div>
+                        `;
+                    }
+                    div.innerHTML = content;
+                    el.appendChild(div);
+                });
+            }
+        }
+
+        window.deleteItem = (id, type) => {
+            const userState = state.users[state.currentUser];
+            userState[type] = userState[type].filter(item => item.id !== id);
+            saveData(state);
+            renderRemindersAndExercises();
+        };
+
+        // Health Tracker
+        document.getElementById('bloodPressureForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userState = state.users[state.currentUser];
+            const sys = document.getElementById('sys').value;
+            const dia = document.getElementById('dia').value;
+            userState.bloodPressure.push({ date: new Date().toISOString().split('T')[0], sys, dia });
+            saveData(state);
+            renderHealthHistory();
+            document.getElementById('bloodPressureForm').reset();
+        });
+
+        document.getElementById('glucoseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userState = state.users[state.currentUser];
+            const value = document.getElementById('glucoseValue').value;
+            userState.glucose.push({ date: new Date().toISOString().split('T')[0], value });
+            saveData(state);
+            renderHealthHistory();
+            document.getElementById('glucoseForm').reset();
+        });
+
+        function renderHealthHistory() {
+            const el = document.getElementById('healthHistory');
+            el.innerHTML = '';
+            const userState = state.users[state.currentUser];
+            
+            const bpList = userState.bloodPressure.map(bp => `<div class="list-item">Pressão: ${bp.sys}/${bp.dia} mmHg em ${bp.date}</div>`).join('');
+            const glucoseList = userState.glucose.map(g => `<div class="list-item">Glicose: ${g.value} mg/dL em ${g.date}</div>`).join('');
+            
+            if (bpList || glucoseList) {
+                el.innerHTML = bpList + glucoseList;
+            } else {
+                el.innerHTML = `<p class="muted" style="text-align: center;">Nenhum dado de saúde registrado.</p>`;
+            }
+        }
+
+        // Family
+        const familyForm = document.getElementById('familyForm');
+        familyForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const userState = state.users[state.currentUser];
+            const name = document.getElementById('memberName').value.trim();
+            const phone = document.getElementById('memberPhone').value.trim();
+            if (!name) return alert('Por favor, informe o nome do familiar.');
+            userState.family.push({ id: Date.now(), name, phone });
+            saveData(state);
+            renderFamily();
+            familyForm.reset();
+        });
+
+        function renderFamily() {
+            const el = document.getElementById('familyList');
+            el.innerHTML = '';
+            const userState = state.users[state.currentUser];
+            if (userState.family.length === 0) {
+                el.innerHTML = `<p class="muted" style="text-align: center;">Nenhum familiar cadastrado. 🫂</p>`;
+            } else {
+                userState.family.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <div class="avatar">${m.name.slice(0, 2).toUpperCase()}</div>
+                        <div class="list-item-content">
+                            <div style="font-weight:700">${m.name}</div>
+                            <div class="muted">${m.phone || 'Sem telefone'}</div>
+                        </div>
+                        <div class="flex-row">
+                            <button onclick="removeMember(${m.id})" class="secondary">Remover</button>
+                        </div>
+                    `;
+                    el.appendChild(div);
+                });
+            }
+        }
+
+        window.removeMember = (id) => {
+            const userState = state.users[state.currentUser];
+            userState.family = userState.family.filter(x => x.id !== id);
+            saveData(state);
+            renderFamily();
+        };
+
+        // Chatbot
+        const chatForm = document.getElementById('chat-input-form');
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const userMessage = input.value.trim();
+            if (userMessage === '') return;
+
+            addMessage(userMessage, 'user-message');
+            input.value = '';
+
+            setTimeout(() => {
+                const botResponse = getBotResponse(userMessage);
+                addMessage(botResponse, 'bot-message');
+            }, 1000);
+        });
+
+        function addMessage(text, type) {
+            const chatMessages = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function getBotResponse(userMessage) {
+            const lowerCaseMessage = userMessage.toLowerCase();
+            if (lowerCaseMessage.includes('olá') || lowerCaseMessage.includes('oi') || lowerCaseMessage.includes('ola')) {
+                return 'Olá! Como posso te ajudar hoje?';
+            } else if (lowerCaseMessage.includes('remédio') || lowerCaseMessage.includes('medicação') || lowerCaseMessage.includes('remedio')) {
+                return 'Para adicionar um lembrete de medicação, vá até a aba "Lembretes" e preencha o formulário de "Adicionar Lembrete de Medicação".';
+            } else if (lowerCaseMessage.includes('exercício') || lowerCaseMessage.includes('exercicio')) {
+                return 'Você pode adicionar um lembrete de exercício na aba "Lembretes", logo abaixo dos lembretes de medicação.';
+            } else if (lowerCaseMessage.includes('pressão') || lowerCaseMessage.includes('pressao') || lowerCaseMessage.includes('glicose')) {
+                return 'Para registrar sua pressão ou glicose, vá até a aba "Acompanhamento" e use os formulários dedicados.';
+            } else if (lowerCaseMessage.includes('família') || lowerCaseMessage.includes('familia') || lowerCaseMessage.includes('contato')) {
+                return 'Na aba "Família", você pode adicionar contatos para receberem notificações e te ajudarem no acompanhamento.';
+            } else if (lowerCaseMessage.includes('obrigado') || lowerCaseMessage.includes('obrigada')) {
+                return 'De nada! Estou aqui para ajudar.';
+            } else if (lowerCaseMessage.includes('ajuda') || lowerCaseMessage.includes('problema')) {
+                return 'Posso te guiar pelas funcionalidades. Tente perguntar sobre "lembretes", "exercícios", "acompanhamento" ou "família".';
+            } else {
+                return 'Desculpe, não entendi. Por favor, tente perguntar sobre uma das funcionalidades do aplicativo (por exemplo: "remédio", "exercício", "pressão").';
+            }
+        }
+
+        // Configurações
+        document.getElementById('exportData').addEventListener('click', () => {
+            const dataStr = JSON.stringify(state.users[state.currentUser], null, 2);
+            const w = window.open('about:blank', '_blank');
+            w.document.write(`<pre>${dataStr}</pre>`);
+        });
+
+        document.getElementById('clearAll').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja apagar TODOS os seus dados? Esta ação não pode ser desfeita.')) {
+                delete state.users[state.currentUser];
+                state.currentUser = null;
+                saveData(state);
+                renderUserInterface();
+                alert('Todos os dados foram apagados com sucesso.');
+            }
+        });
+
+        const renderAll = () => {
+            renderRemindersAndExercises();
+            renderFamily();
+            renderHealthHistory();
+        };
+
+        window.addEventListener('load', () => {
+            renderUserInterface();
+        });
+    </script>
+</body>
+</html>
